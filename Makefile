@@ -4,5 +4,8 @@
 dev:
 	air -c .air.toml	
 
+lint:
+	golangci-lint run
+
 build:
 	go build -o image-pipeline-server 
