@@ -3,3 +3,6 @@
 # for dev
 dev:
 	air -c .air.toml	
+
+build:
+	go build -o image-pipeline-server 

@@ -15,6 +15,7 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"os"
@@ -95,6 +96,11 @@ func main() {
 	}
 
 	e.GET("/", imagePipelineFromQuery)
+
+	e.GET("/ping", func(c *elton.Context) error {
+		c.BodyBuffer = bytes.NewBufferString("pong")
+		return nil
+	})
 
 	addr := ":7001"
 	log.Info(context.Background()).
