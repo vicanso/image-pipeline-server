@@ -6,12 +6,14 @@ require (
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/rs/zerolog v1.26.1
 	github.com/vicanso/elton v1.9.1
+	github.com/vicanso/go-cache/v2 v2.0.0-beta3
 	github.com/vicanso/hes v0.5.0
 	github.com/vicanso/image-pipeline v0.0.4
 )
 
 require (
 	github.com/aliyun/aliyun-oss-go-sdk v2.2.2+incompatible // indirect
+	github.com/allegro/bigcache/v3 v3.0.2 // indirect
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
@@ -31,6 +33,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/rs/xid v1.4.0 // indirect
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/tidwall/gjson v1.14.0 // indirect

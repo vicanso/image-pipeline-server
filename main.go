@@ -82,17 +82,15 @@ func main() {
 
 	e.Use(middleware.NewDefaultError())
 	redisURI := os.Getenv(IP_REDIS)
-	if redisURI != "" {
-		store, err := newCacheStore(redisURI)
-		if err != nil {
-			log.Error(context.Background()).
-				Err(err).
-				Msg("new cache store fail")
-		} else {
-			e.Use(middleware.NewDefaultCache(store))
-			log.Info(context.Background()).
-				Msg("cache middleware success")
-		}
+	store, err := newCacheStore(redisURI)
+	if err != nil {
+		log.Error(context.Background()).
+			Err(err).
+			Msg("new cache store fail")
+	} else {
+		e.Use(middleware.NewDefaultCache(store))
+		log.Info(context.Background()).
+			Msg("cache middleware success")
 	}
 
 	e.GET("/", imagePipelineFromQuery)
@@ -107,7 +105,7 @@ func main() {
 		Str("addr", addr).
 		Msg("server is running")
 
-	err := e.ListenAndServe(addr)
+	err = e.ListenAndServe(addr)
 	if err != nil {
 		log.Error(context.Background()).
 			Err(err).

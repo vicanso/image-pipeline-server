@@ -23,20 +23,24 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/vicanso/elton/middleware"
+	"github.com/vicanso/go-cache/v2"
 )
 
-type redisStore struct {
-	client redis.UniversalClient
+// 内存缓存默认值
+const defaultCacheSizeMB = 20
+
+type store struct {
+	cache *cache.Cache
 }
 
-func (rs *redisStore) Get(ctx context.Context, key string) ([]byte, error) {
+func (s *store) Get(ctx context.Context, key string) ([]byte, error) {
 	// 获取失败则忽略
-	buf, _ := rs.client.Get(ctx, key).Bytes()
+	buf, _ := s.cache.GetBytes(ctx, key)
 	return buf, nil
 }
 
-func (rs *redisStore) Set(ctx context.Context, key string, data []byte, ttl time.Duration) error {
-	return rs.client.Set(ctx, key, data, ttl).Err()
+func (s *store) Set(ctx context.Context, key string, data []byte, ttl time.Duration) error {
+	return s.cache.SetBytes(ctx, key, data, ttl)
 }
 
 func newRedisClient(uri string) (redis.UniversalClient, error) {
@@ -60,11 +64,28 @@ func newRedisClient(uri string) (redis.UniversalClient, error) {
 }
 
 func newCacheStore(uri string) (middleware.CacheStore, error) {
-	client, err := newRedisClient(uri)
+	var secondaryStore cache.Store
+	if uri != "" {
+		client, err := newRedisClient(uri)
+		if err != nil {
+			return nil, err
+		}
+		secondaryStore = cache.NewRedisStore(client)
+	}
+
+	c, err := cache.New(
+		// 默认缓存10分钟
+		10*time.Minute,
+		cache.CacheHardMaxCacheSizeOption(defaultCacheSizeMB),
+		// image pipeline server cache
+		cache.CacheKeyPrefixOption("ipsc:"),
+		cache.CacheSecondaryStoreOption(secondaryStore),
+	)
 	if err != nil {
 		return nil, err
 	}
-	return &redisStore{
-		client: client,
+
+	return &store{
+		cache: c,
 	}, nil
 }
