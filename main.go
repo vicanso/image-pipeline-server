@@ -28,16 +28,31 @@ import (
 )
 
 const IP_REDIS = "IP_REDIS"
+const IP_CACHE_SIZE = "IP_CACHE_SIZE"
 
 func init() {
 	// 只处理以IP_开头的环境变量
 	envPrefix := "IP_"
 	envFinderPrefix := "FINDER_"
+	ingorePrefixList := []string{
+		IP_REDIS,
+		IP_CACHE_SIZE,
+	}
 	for _, env := range os.Environ() {
-		if strings.HasPrefix(env, IP_REDIS) ||
-			!strings.HasPrefix(env, envPrefix) {
+		// 非IP_开头的环境变量忽略
+		if !strings.HasPrefix(env, envPrefix) {
 			continue
 		}
+		ignored := false
+		for _, ingorePrefix := range ingorePrefixList {
+			if strings.HasPrefix(env, ingorePrefix) {
+				ignored = true
+			}
+		}
+		if ignored {
+			continue
+		}
+
 		env = env[len(envPrefix):]
 		if strings.HasPrefix(env, envFinderPrefix) {
 			err := addFinder(env[len(envFinderPrefix):])
@@ -81,8 +96,7 @@ func main() {
 	}))
 
 	e.Use(middleware.NewDefaultError())
-	redisURI := os.Getenv(IP_REDIS)
-	store, err := newCacheStore(redisURI)
+	store, err := newCacheStore()
 	if err != nil {
 		log.Error(context.Background()).
 			Err(err).

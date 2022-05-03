@@ -17,6 +17,7 @@ package main
 import (
 	"context"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -63,20 +64,30 @@ func newRedisClient(uri string) (redis.UniversalClient, error) {
 	}), nil
 }
 
-func newCacheStore(uri string) (middleware.CacheStore, error) {
+func newCacheStore() (middleware.CacheStore, error) {
+	redisURI := os.Getenv(IP_REDIS)
 	var secondaryStore cache.Store
-	if uri != "" {
-		client, err := newRedisClient(uri)
+	if redisURI != "" {
+		client, err := newRedisClient(redisURI)
 		if err != nil {
 			return nil, err
 		}
 		secondaryStore = cache.NewRedisStore(client)
 	}
+	cacheSizeValue := os.Getenv(IP_CACHE_SIZE)
+	cacheSize := 0
+	if cacheSizeValue != "" {
+		cacheSize, _ = strconv.Atoi(cacheSizeValue)
+	}
+	if cacheSize <= 0 {
+		cacheSize = defaultCacheSizeMB
+	}
 
 	c, err := cache.New(
 		// 默认缓存10分钟
 		10*time.Minute,
-		cache.CacheHardMaxCacheSizeOption(defaultCacheSizeMB),
+		// 内存缓存大小
+		cache.CacheHardMaxCacheSizeOption(cacheSize),
 		// image pipeline server cache
 		cache.CacheKeyPrefixOption("ipsc:"),
 		cache.CacheSecondaryStoreOption(secondaryStore),
