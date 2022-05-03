@@ -23,12 +23,7 @@ import (
 	pipeline "github.com/vicanso/image-pipeline"
 )
 
-func imagePipelineFromQuery(c *elton.Context) error {
-	tasks := c.Request.URL.RawQuery
-	if tasks == "" {
-		return hes.New("Task不能为空")
-	}
-
+func imagePipeline(c *elton.Context, tasks string) error {
 	jobs, err := pipeline.Parse(tasks, c.GetRequestHeader("Accept"))
 	if err != nil {
 		return err
@@ -51,4 +46,12 @@ func imagePipelineFromQuery(c *elton.Context) error {
 	c.BodyBuffer = bytes.NewBuffer(data)
 
 	return nil
+}
+
+func imagePipelineFromQuery(c *elton.Context) error {
+	tasks := c.Request.URL.RawQuery
+	if tasks == "" {
+		return hes.New("Task不能为空")
+	}
+	return imagePipeline(c, tasks)
 }
