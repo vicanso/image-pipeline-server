@@ -26,12 +26,16 @@ docker run -d --restart=always \
   -p 8001:7001 \
   -e IP_tiny=optimize/172.16.23.175:6002 \
   -e IP_FINDER_oss="aliyun://oss-cn-beijing.aliyuncs.com?accessKey=key&secretKey=secret" \
+  -e IP_FINDER_minio="minio://172.16.214.137:9000/?accessKey=test&secretKey=testabcd" \
+  -e IP_FINDER_gridfs="mongodb://test:testabcd@172.16.214.137:27017/admin" \
   --name image-pipeline \
   vicanso/image-pipeline-server
 ```
 
 - `IP_tiny=optimize/172.16.23.175:6002` 指定一个名为`tiny`的图片优化任务别名，它使用`172.16.23.175:6002`的tiny服务处理图片优化
 - `IP_FINDER_oss="aliyun://oss-cn-beijing.aliyuncs.com?accessKey=key&secretKey=secret"` 指定一个名为`oss`的阿里云oss存储服务，其中`key`与`secret`需要调整oss对应的配置
+- `IP_FINDER_minio="minio://172.16.214.137:9000/?accessKey=test&secretKey=testabcd"` 指定一个名为minio的minio oss存储服务，其中`key`与`secret`需要调整oss对应的配置
+- `IP_FINDER_gridfs="mongodb://test:testabcd@172.16.214.137:27017/admin"` 指定一个名为gridfs的mongodb gridfs存储服务，其中用户名、密码与db需要调整为对应的配置
 
 获取图片并转换为webp，质量为90，对应的请求如下：
 
@@ -39,8 +43,20 @@ docker run -d --restart=always \
 http://127.0.0.1:8001/?proxy/https%3A%2F%2Fwww.baidu.com%2Fimg%2FPCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png|tiny/90/webp
 ```
 
-从oss服务中获取图片，转换为webp，质量为90，对应的请求如下：
+从oss服务中获取图片(bucket:tinysite)，转换为webp，质量为90，对应的请求如下：
 
 ```bash
 http://127.0.0.1:8001/?oss/tinysite/go-echarts.jpg|tiny/90/webp
+```
+
+从minio服务中获取图片(bucket:bigtree)，转换为webp，质量为90，对应的请求如下：
+
+```bash
+http://127.0.0.1:8001/?minio/bigtree/go-charts.png|tiny/90/webp
+```
+
+从mongodb gridfs服务中获取图片(bucket:bigtree)，转换为webp，质量为90，对应的请求如下：
+
+```bash
+http://127.0.0.1:8001/?gridfs/6242c7f1e08b32ac7b550673|tiny/80/webp
 ```
