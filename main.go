@@ -108,6 +108,7 @@ func main() {
 	}
 
 	e.GET("/", imagePipelineFromQuery)
+	e.POST("/", imagePipelineFromBody)
 
 	e.GET("/ping", func(c *elton.Context) error {
 		c.BodyBuffer = bytes.NewBufferString("pong")
